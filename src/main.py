@@ -1,8 +1,8 @@
-import os, requests, json
+import os, requests, json, re
 from time import sleep
 from bs4 import BeautifulSoup
-# from rich.console import Console
-# from time import sleep
+from rich.console import Console
+from time import sleep
 
 LINK = 'https://www.cifraclub.com.br'
 OUT_FOLDER = 'extracted'
@@ -10,20 +10,26 @@ OUT_FOLDER = 'extracted'
 def extractPageContent(content, isVersion=False):
     soup = BeautifulSoup(content, 'html.parser') if isinstance(content, str) else content
 
-    tab = [x.get_text() for x in soup.select('div.cifra_cnt pre')]
+    def cleanText(text): return re.sub(r'\s+', ' ', text).strip()
+
+    tab = soup.select_one('div.cifra_cnt pre').__repr__()
+
+    versionName = soup.select_one('a.tab_more')
+    [el.decompose() for el in versionName.find_all('div')]
+    versionName = cleanText(versionName.text)
 
     if isVersion:
         return {
+            "versionName": versionName if versionName else "",
             "tab": tab
         }
     
     songName = soup.select_one('div.cifra .t1')
     author = soup.select_one('div.cifra .t3')
-    versionName = soup.select_one('a.tab_more')
     name = f"{songName.text.lower()}@{author.text.lower()}" if songName and author else "unknown"
 
     return {
-        "versioName": versionName.text if versionName else "",
+        "versionName": versionName if versionName else "",
         "author": author.text if author else "",
         "song_name": songName.text if songName else "",
         "file": name,
@@ -33,29 +39,36 @@ def extractPageContent(content, isVersion=False):
 
 def main():
     outjson = dict() 
-    link = 'https://www.cifraclub.com.br/red-hot-chili-peppers/cant-stop/'
+    link = 'https://www.cifraclub.com.br/weezer/saying-aint-so/'
     extractFolder = f"{OUT_FOLDER}/{link.replace(LINK, '')}"
 
-    page = requests.get(link).text
-    # soup = BeautifulSoup(page.text, 'html.parser')
+    console = Console()
 
-    mainContent = BeautifulSoup(page, 'html.parser')
-    versions = mainContent.select('a.vers-r.js-version')
+    with console.status(f"[bold]Extracting {link}...[/bold]") as status:
+        page = requests.get(link).text
+        # soup = BeautifulSoup(page.text, 'html.parser')
 
-    outjson['default'] = extractPageContent(mainContent)
+        mainContent = BeautifulSoup(page, 'html.parser')
+        versions = mainContent.select('a.vers-r.js-version')
 
-    # WARN: could cause runtine errors
-    versions = [str(x['href']) for x in versions if str(x['href']).endswith('.html')]
+        outjson['default'] = extractPageContent(mainContent)
+
+        # WARN: could cause runtine errors
+        versions = [str(x['href']) for x in versions if str(x['href']).endswith('.html')]
+
 
     for ver in versions:
-        content = requests.get(LINK + ver).text
-        outjson[ver] = extractPageContent(content, True)
-        sleep(1)
+        formatNameVer = ver.removesuffix('.html').removeprefix('/')
+
+        with console.status(f"Extracting variant {formatNameVer}...") as status:
+            content = requests.get(LINK + ver).text
+            outjson[formatNameVer] = extractPageContent(content, True)
+            sleep(1)
 
     os.system(f"mkdir -p {extractFolder}")
 
     with open(f"{extractFolder}/{outjson['default']['file']}.json", "w") as f:
-        json.dump(outjson, f, indent=2)
+        json.dump(outjson, f, indent=2, ensure_ascii=False)
 
     pass
 
