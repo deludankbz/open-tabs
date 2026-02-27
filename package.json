@@ -1,14 +1,14 @@
 {
-  "name": "dls-stats",
+  "name": "open-tabs",
   "version": "1.0.0",
   "description": "Query and find statics from the players present in the game Dream League Soccer",
-  "homepage": "https://github.com/deludankbz/dls-stats#readme",
+  "homepage": "https://github.com/deludankbz/open-tabs#readme",
   "bugs": {
-    "url": "https://github.com/deludankbz/dls-stats/issues"
+    "url": "https://github.com/deludankbz/open-tabs/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deludankbz/dls-stats.git"
+    "url": "git+https://github.com/deludankbz/open-tabs.git"
   },
   "license": "MIT",
   "author": "L. Pessoa",

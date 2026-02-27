@@ -1,5 +1,5 @@
 export default {
-  base: "/dls-stats/",
+  base: "/open-tabs/",
   build: {
     outDir: "docs"
   }
