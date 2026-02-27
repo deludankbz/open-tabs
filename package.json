@@ -1,0 +1,25 @@
+{
+  "name": "dls-stats",
+  "version": "1.0.0",
+  "description": "Query and find statics from the players present in the game Dream League Soccer",
+  "homepage": "https://github.com/deludankbz/dls-stats#readme",
+  "bugs": {
+    "url": "https://github.com/deludankbz/dls-stats/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deludankbz/dls-stats.git"
+  },
+  "license": "MIT",
+  "author": "L. Pessoa",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "handlebars": "^4.7.8",
+    "vite": "^7.3.1"
+  }
+}
